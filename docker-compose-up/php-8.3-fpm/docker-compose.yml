@@ -1,0 +1,29 @@
+version: '3'
+services:
+  php-8.3-fpm:
+    build: ../../php
+    # image:php-8.3-fpm
+    # 指定镜像 image:php-8.3-fpm
+    # image: php-8.3-fpm
+    restart: always
+    ports:
+      - "9090:9000"
+    networks:
+      - appnet
+    volumes:
+      - ../../php/php.ini:/usr/local/etc/php/php.ini
+      - ../../work/php:/var/www/
+  nginx:
+    image: openresty/openresty:alpine
+    restart: always
+    ports:
+      - "8080:80"
+      - "8081:81"
+    networks:
+      - appnet
+    volumes:
+      - ../../nginx/conf.d:/etc/nginx/conf.d
+      - ../../nginx/logs:/usr/local/openresty/nginx/logs
+      - ../../work/html:/var/www/html
+networks:
+  appnet:

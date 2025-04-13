@@ -1,0 +1,85 @@
+# 指定基础镜像
+FROM php:8.4-fpm
+
+# 安装常用软件包
+RUN apt-get update && apt-get install -y \
+    bash\
+    curl\
+    wget\
+    vim\
+    lsof\
+    net-tools\
+    iputils-ping\
+    telnet\
+    rsync\
+    iotop\
+    htop\
+    tcpdump\
+    netcat\
+    git\
+    zip\
+    unzip
+
+# 安装 Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --version=2.8.2 --install-dir=/usr/local/bin --filename=composer
+
+# 复制自定义 PHP 配置文件到容器中
+# COPY php-custom.ini /usr/local/etc/php/conf.d/custom.ini
+
+# 安装 gcc g++ 编译器和相关依赖
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    make \
+    autoconf \
+    automake \
+    libtool \
+    libc-dev \
+    pkg-config \
+    zlib1g \
+    zlib1g-dev \
+    libxml2 \
+    libxml2-dev \
+    libicu-dev
+
+# 安装 gd 扩展及相关依赖
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype-dev \
+    && docker-php-ext-install gd
+
+# 安装 zip 扩展
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    zip \
+    unzip \
+    && docker-php-ext-install zip
+
+# 安装 xdebug 扩展
+RUN pecl install xdebug && docker-php-ext-enable xdebug
+
+# 安装 mysqli 扩展
+RUN docker-php-ext-install mysqli
+
+# 安装 pdo_mysql 扩展
+RUN docker-php-ext-install pdo_mysql
+
+# 安装 oniguruma
+RUN apt-get update && apt-get install -y libonig-dev
+
+# 安装 mbstring 扩展
+RUN docker-php-ext-install mbstring
+
+# 安装 Redis 扩展
+RUN pecl install redis && docker-php-ext-enable redis
+
+# 安装 Swoole 扩展
+RUN pecl install swoole && docker-php-ext-enable swoole
+
+# 设置工作目录
+WORKDIR /var/www/
+
+
+# 启动 PHP-FPM
+CMD ["php-fpm"]

@@ -1,0 +1,46 @@
+version: '3'
+# 有多个版本的php需要开发时。可以编排多个不同版本的php，统一由nginx进行转发
+services:
+  nginx:
+    image: openresty/openresty:alpine
+    restart: always
+    ports:
+      - "8080:80"
+      - "8081:81"
+    networks:
+      - appnet
+    volumes:
+      - ../../dockerfile/nginx/conf.d:/etc/nginx/conf.d
+      - ../../dockerfile/nginx/logs:/usr/local/openresty/nginx/logs
+      - ../../work/html:/var/www/html
+    depends_on:
+      - php74
+      - php84
+  php74:
+    # 指定镜像
+    image: php-7.4-fpm
+    restart: always
+    # 通常php的端口不需要暴露
+    # ports:
+    #   - "9090:9000"
+    networks:
+      - appnet
+    volumes:
+      - ../../dockerfile/php/7.4/php.ini:/usr/local/etc/php/php.ini
+      - ../../dockerfile/php/7.4/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ../../work/php:/var/www/
+  php84:
+    # 指定镜像
+    image: php-8.4-fpm
+    restart: always
+    # 通常php的端口不需要暴露
+    # ports:
+    #   - "9090:9000"
+    networks:
+      - appnet
+    volumes:
+      - ../../dockerfile/php/8.4/php.ini:/usr/local/etc/php/php.ini
+      - ../../dockerfile/php/8.4/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ../../work/php:/var/www/
+networks:
+  appnet:
